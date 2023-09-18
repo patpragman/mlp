@@ -87,7 +87,17 @@ history = train_and_test_model(train_dataloader=train_dataloader, test_dataloade
 wandb.log(history)
 
 df = pd.DataFrame(history)
-df.plot(subplots=True, layout=(1, 3), x="epoch")
+# Set "epoch" as the x-axis for all columns except "epoch"
+df.set_index("epoch", inplace=True)
+
+# Plot all columns
+df.plot(marker='o', linestyle='-')
+
+# Customize the plot
+plt.xlabel("Epoch")
+plt.ylabel("Values")
+plt.title("Line Plot for DataFrame Columns")
+plt.legend(title="Columns")
 plt.show()
 
 # Log hyperparameters to wandb
