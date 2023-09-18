@@ -96,7 +96,7 @@ df.plot(marker='o', linestyle='-')
 # Customize the plot
 plt.xlabel("Epoch")
 plt.ylabel("Values")
-plt.title("Line Plot for DataFrame Columns")
+plt.title("Training")
 plt.legend(title="Columns")
 plt.show()
 
