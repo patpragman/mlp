@@ -94,9 +94,10 @@ def train_and_test_model(
 
         if wandb:
             wandb.log({"training loss": training_loss})
-            wandb.log({"testing loss": test_loss})
-            wandb.log({"accuracy": test_acc})
-            wandb.log({"epoch": t}, commit=True)
+            wandb.log({"testing loss": test_loss,
+                       "accuracy": test_acc,
+                       "epoch": t}, commit=True)
+
 
 
     return {"training_loss": training_losses,
