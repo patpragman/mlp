@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from train_test_suite import train_and_test_model
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.metrics import classification_report
 
 # Initialize wandb
 wandb.init(project="Elodea MLP")
@@ -40,10 +41,10 @@ class MLPImageClassifier(nn.Module):
 # Define hyperparameters as config
 config = dict(
     input_size=3*224**2,  # 3 channels (RGB) and various sized images
-    hidden_sizes=[1024, 1024, 1024],  # You can tune the number of neurons in hidden layers
+    hidden_sizes=[4096, 4096, 4096],  # You can tune the number of neurons in hidden layers
     num_classes=2,  # Number of classes for image classification - for us, 2
     learning_rate=0.00001,  # You can tune the learning rate
-    epochs=50,  # You can tune the number of epochs
+    epochs=75,  # You can tune the number of epochs
 )
 
 # Initialize wandb config
@@ -82,6 +83,10 @@ history = train_and_test_model(train_dataloader=train_dataloader, test_dataloade
                                model=model, loss_fn=loss_fn, optimizer=optimizer, epochs=epochs,
                                device="cpu", wandb=wandb, verbose=False)
 
+y_true, y_pred = history['y_true'], history['y_pred']
+print(y_true, y_pred)
+
+print(classification_report(y_true=y_true, y_pred=y_pred))
 
 # Log test accuracy to wandb
 wandb.log(history)

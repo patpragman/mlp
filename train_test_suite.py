@@ -2,7 +2,6 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-from sklearn.metrics import classification_report
 import wandb
 
 
@@ -44,10 +43,20 @@ def test(dataloader: DataLoader,
     model.eval()
     test_loss, correct = 0, 0
 
+    y_pred_list = []
+    y_true_list = []
+
     with torch.no_grad():
         for X, y in dataloader:
             X, y = X.to(device), y.to(device)
             prediction = model(X)
+
+            y_true = y.numpy().tolist()
+            y_pred = (prediction.argmax(1) == y).type(torch.float).numpy().tolist()
+
+            y_pred_list.append(y_pred)
+            y_true_list.append(y_true)
+
             test_loss += loss_fn(prediction, y).item()
             correct += (prediction.argmax(1) == y).type(torch.float).sum().item()  # wtf is this doing?!
 
@@ -57,7 +66,7 @@ def test(dataloader: DataLoader,
     if verbose:
         print(f"Test Error: \n Accuracy: {(100 * correct): >0.1f}%, avg loss: {test_loss: >8f} \n")
 
-    return correct, test_loss
+    return correct, test_loss, sum(y_pred_list, []), sum(y_true_list, [])
 
 def train_and_test_model(
         train_dataloader: DataLoader,
@@ -82,7 +91,7 @@ def train_and_test_model(
         training_loss = train(train_dataloader, model, loss_fn, optimizer, device, verbose=verbose)
         training_losses.append(training_loss)
 
-        test_acc, test_loss = test(test_dataloader, model, loss_fn, device, verbose=verbose)
+        test_acc, test_loss, y_pred_list, y_true_list = test(test_dataloader, model, loss_fn, device, verbose=verbose)
         testing_losses.append(test_loss)
         testing_accuracies.append(test_acc)
         epoch.append(t)
@@ -103,5 +112,6 @@ def train_and_test_model(
     return {"training_loss": training_losses,
             "testing_loss": testing_losses,
             "testing_accuracy": testing_accuracies,
-            "epoch": epoch}
+            "epoch": epoch,
+            "y_true": y_true_list, "y_pred": y_pred_list}
 
