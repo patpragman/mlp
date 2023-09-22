@@ -1,0 +1,21 @@
+name: mlp-hyperparam-sweep
+method: grid
+metric: accuracy
+
+parameters:
+  input_size:
+    values: [512, 256, 224, 128, 64]
+  hidden_sizes:
+    values: [32, 64, 128, 256, 512]
+  hidden_depth:
+    values: [3, 4]
+  learning_rate:
+    values: [0.0001, 0.00001, 0.000001]
+  activation_function:
+    values: [relu, leaky_relu]
+  optimizer:
+    values: [sgd, adam]
+  epochs:
+    values: [40, 60]
+  batch_size:
+    values: [32]
