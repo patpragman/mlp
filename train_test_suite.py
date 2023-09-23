@@ -2,6 +2,7 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+from sklearn.metrics import f1_score
 import wandb
 
 
@@ -78,6 +79,7 @@ def train_and_test_model(
         epochs: int = 10,
         verbose: bool = False,
         wandb=None) -> dict:
+
     training_losses = []
     testing_losses = []
     testing_accuracies = []
@@ -108,10 +110,12 @@ def train_and_test_model(
             wandb.log({"epoch": t})
 
 
+    wandb.log({"Best_F1": f1_score(y_true_list, y_pred_list)})
 
     return {"training_loss": training_losses,
             "testing_loss": testing_losses,
             "testing_accuracy": testing_accuracies,
             "epoch": epoch,
+            "Best_F1": f1_score(y_true_list, y_pred_list),
             "y_true": y_true_list, "y_pred": y_pred_list}
 

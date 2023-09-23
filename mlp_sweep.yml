@@ -1,6 +1,8 @@
 name: mlp-hyperparam-sweep
 method: grid
-metric: accuracy
+metric:
+  name: testing_loss
+  goal: minimize
 
 parameters:
   input_size:

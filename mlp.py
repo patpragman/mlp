@@ -99,7 +99,6 @@ def find_best_model():
                                    device="cpu", wandb=wandb, verbose=False)
 
     y_true, y_pred = history['y_true'], history['y_pred']
-
     print(classification_report(y_true=y_true, y_pred=y_pred))
 
     # Log test accuracy to wandb
@@ -123,12 +122,12 @@ if __name__ == "__main__":
     best_metric_value = float("inf")
 
     for run in runs:
-        if run.summary["validation_loss"] < best_metric_value:
+        if run.summary["accuracy"] > best_metric_value:
             best_run = run
-            best_metric_value = run.summary["validation_loss"]
+            best_metric_value = run.summary["accuracy"]
 
     # Print the best run and its hyperparameters
     print("Best Run:")
     print(f"Run ID: {best_run.id}")
-    print(f"Validation Loss: {best_run.summary['validation_loss']}")
+    print(f"Test Accuracy: {best_run.summary['accuracy']}")
     print(f"Hyperparameters: {best_run.config}")
