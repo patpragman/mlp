@@ -8,6 +8,9 @@ from train_test_suite import train_and_test_model
 from sklearn.metrics import classification_report
 import yaml
 from pprint import pprint
+from pathlib import Path
+
+HOME_DIRECTORY = Path.home()
 SEED = 42
 
 
@@ -24,7 +27,7 @@ class MLPImageClassifier(nn.Module):
 
         if activation_function.lower() == "relu":
             fn = nn.ReLU()
-        elif activation_function.lower == "leaky_relu":
+        elif activation_function.lower() == "leaky_relu":
             fn = nn.LeakyReLU(0.1)
         else:
             fn = nn.Tanh()
@@ -72,7 +75,7 @@ def find_best_model():
     print('Model Architecture:')
     print(model)
 
-    path = f"/home/patrickpragman/PycharmProjects/models/data_manufacturer/0.35_reduced_then_balanced/data_{config.input_size}"
+    path = f"{HOME_DIRECTORY}/data/0.35_reduced_then_balanced/data_{config.input_size}"
 
     dataset = FloatImageDataset(directory_path=path,
                                 true_folder_name="entangled", false_folder_name="not_entangled"
