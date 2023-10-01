@@ -9,6 +9,8 @@ from sklearn.metrics import classification_report
 import yaml
 from pprint import pprint
 from pathlib import Path
+from hashlib import sha256
+import os
 
 HOME_DIRECTORY = Path.home()
 SEED = 42
@@ -55,6 +57,7 @@ sweep_id = wandb.sweep(sweep=sweep_config)
 def find_best_model():
     # config for wandb
 
+    wandb.init(project='Elodea MLP')
     # Initialize wandb
     config = wandb.config
 
@@ -69,10 +72,6 @@ def find_best_model():
     model = MLPImageClassifier(input_size,
                                hidden_sizes,
                                num_classes, activation_function=config.activation_function)
-    print('HYPER PARAMETERS:')
-    pprint(config)
-    print('Model Architecture:')
-    print(model)
 
     path = f"{HOME_DIRECTORY}/data/0.35_reduced_then_balanced/data_{config.input_size}"
 
@@ -100,36 +99,25 @@ def find_best_model():
                                    model=model, loss_fn=loss_fn, optimizer=optimizer, epochs=epochs,
                                    device="cpu", wandb=wandb, verbose=False)
 
-    y_true, y_pred = history['y_true'], history['y_pred']
-    print(classification_report(y_true=y_true, y_pred=y_pred))
+    # save the model
+    model_hash = sha256(str(config).encode('utf-8'))
+    model_name = f"alexnet_{model_hash.hexdigest()}"
+    if not os.path.isdir(f"models/{model_name}"):
+        os.mkdir(f"models/{model_name}")
 
-    # Log test accuracy to wandb
+    y_true, y_pred = history['y_true'], history['y_pred']
+    cr = classification_report(y_true=y_true, y_pred=y_pred)
+
+    report = [
+        model_name, cr, str(model)
+    ]
+    with open(f"models/{model_name}/report.md", "w") as report_file:
+        report_file.writelines(report)
+
+    torch.save(model.state_dict(), f"models/{model_name}.pth")
 
     # Log hyperparameters to wandb
     wandb.log(dict(config))
 
 if __name__ == "__main__":
     wandb.agent(sweep_id, function=find_best_model)
-
-    # Specify your W&B project and sweep ID
-    project_name = "Elodea MLP"
-
-    # Fetch sweep runs
-    api = wandb.Api()
-    sweep = api.sweep(f"{project_name}/{sweep_id}")
-    runs = list(sweep.runs)
-
-    # Find the best run based on the metric you care about (e.g., lowest validation loss)
-    best_run = None
-    best_metric_value = float("inf")
-
-    for run in runs:
-        if run.summary["accuracy"] > best_metric_value:
-            best_run = run
-            best_metric_value = run.summary["accuracy"]
-
-    # Print the best run and its hyperparameters
-    print("Best Run:")
-    print(f"Run ID: {best_run.id}")
-    print(f"Test Accuracy: {best_run.summary['accuracy']}")
-    print(f"Hyperparameters: {best_run.config}")
