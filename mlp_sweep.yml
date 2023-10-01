@@ -1,12 +1,13 @@
 name: mlp-hyperparam-sweep
 method: grid
+project: Elodea MLP
 metric:
   name: testing_loss
   goal: minimize
 
 parameters:
   input_size:
-    values: [512, 256, 224, 128, 64]
+    values: [224]
   hidden_sizes:
     values: [32, 64, 128, 256, 512]
   hidden_depth:

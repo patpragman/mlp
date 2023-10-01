@@ -56,7 +56,6 @@ def find_best_model():
     # config for wandb
 
     # Initialize wandb
-    wandb.init(project="Elodea MLP")
     config = wandb.config
 
     # creating the model stuff
